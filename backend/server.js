@@ -83,7 +83,8 @@ const allowedOrigins = [
   'http://127.0.0.1:3000',
   'http://127.0.0.1:3001',
   'https://aquaaferns.netlify.app',
-  'https://aquaaferns.onrender.com'
+  'https://aquaaferns.onrender.com',
+  'https://aquaaferns-frontend.onrender.com'
 ];
 
 app.use(cors({
