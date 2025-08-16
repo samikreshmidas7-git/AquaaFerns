@@ -1,0 +1,2 @@
+Run this command in your backend folder to install multer for image upload support:
+npm install multer
