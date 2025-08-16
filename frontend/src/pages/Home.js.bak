@@ -1,0 +1,589 @@
+import React, { useState } from 'react';
+import { useContent } from '../context/ContentContext';
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  CardMedia,
+  Grid,
+  Button,
+  Container,
+  TextField,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Alert,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import MainLayout from "../components/MainLayout";
+import { useNavigate } from 'react-router-dom';
+import InstagramFeed from '../components/InstagramFeed';
+
+const Home = () => {
+  const navigate = useNavigate();
+  const [editMode, setEditMode] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [editingItem, setEditingItem] = useState(null);
+  
+  const { categories, setCategories, announcement, setAnnouncement, saveToBackend } = useContent();
+      description: 'Discover our vibrant collection of freshwater and marine fish. From colorful tetras to elegant angelfish, find the perfect addition to your aquatic ecosystem.',
+      image: 'https://images.unsplash.com/photo-1524704796725-9fc3044a58b2?ixlib=rb-4.0.3',
+      items: [
+        'Tropical Freshwater Fish',
+        'Marine Fish',
+        'Cold Water Fish',
+        'Breeding Pairs'
+      ]
+    },
+    {
+      id: 2,
+      title: 'Aquatic Plants',
+      description: 'Transform your aquarium into a lush underwater garden with our selection of live aquatic plants. Perfect for creating natural habitats and maintaining water quality.',
+      image: 'https://images.unsplash.com/photo-1584135135867-9037c3ec1d04?ixlib=rb-4.0.3',
+      items: [
+        'Foreground Plants',
+        'Background Plants',
+        'Floating Plants',
+        'Easy-care Plants'
+      ]
+    },
+    {
+      id: 3,
+      title: 'Aquarium Accessories',
+      description: 'Everything you need to create and maintain the perfect aquatic environment. From filters to decorations, we have all your aquarium essentials.',
+      image: 'https://images.unsplash.com/photo-1612095935072-6e15e1331b8c?ixlib=rb-4.0.3',
+      items: [
+        'Filters & Pumps',
+        'Lighting Systems',
+        'Substrates',
+        'Decorations'
+      ]
+    },
+    {
+      id: 4,
+      title: 'Maintenance & Care',
+      description: 'Keep your aquarium thriving with our range of maintenance products and expert care supplies. Quality products for optimal aquatic health.',
+      image: 'https://images.unsplash.com/photo-1622038492514-c40322742757?ixlib=rb-4.0.3',
+      items: [
+        'Water Treatments',
+        'Test Kits',
+        'Cleaning Tools',
+        'Fish Food'
+      ]
+    }
+  ]);
+
+  const [editingItem, setEditingItem] = useState(null);
+
+  const handleEditCategory = (category) => {
+    setEditingCategory({ ...category });
+  };
+
+  const handleSaveCategory = () => {
+    setCategories(categories.map(cat => 
+      cat.id === editingCategory.id ? editingCategory : cat
+    ));
+    setEditingCategory(null);
+    saveToBackend(); // Save to backend after updating
+  };
+
+  const handleAddCategory = () => {
+    const newCategory = {
+      id: categories.length + 1,
+      title: 'New Category',
+      description: 'New category description',
+      image: 'https://via.placeholder.com/400x200',
+      items: ['New Item']
+    };
+    setCategories([...categories, newCategory]);
+    handleEditCategory(newCategory);
+  };
+
+  const handleDeleteCategory = (categoryId) => {
+    setCategories(categories.filter(cat => cat.id !== categoryId));
+  };
+
+  return (
+    <MainLayout>
+      <Box sx={{ padding: "24px", height: "100%", overflowY: "auto" }}>
+        {/* Edit Mode Toggle */}
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+          <Button
+            variant={editMode ? "contained" : "outlined"}
+            color={editMode ? "success" : "primary"}
+            onClick={() => setEditMode(!editMode)}
+            startIcon={editMode ? <SaveIcon /> : <EditIcon />}
+          >
+            {editMode ? "Save Changes" : "Edit Page"}
+          </Button>
+        </Box>
+
+        {/* Announcement Bar */}
+        {(announcement.isVisible || editMode) && (
+          <Paper
+            sx={{
+              p: 2,
+              mb: 3,
+              backgroundColor: 'primary.main',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}
+          >
+            {announcement.isEditing ? (
+              <TextField
+                fullWidth
+                value={announcement.text}
+                onChange={(e) => setAnnouncement({ ...announcement, text: e.target.value })}
+                variant="standard"
+                sx={{ input: { color: 'white' } }}
+              />
+            ) : (
+              <Typography>{announcement.text}</Typography>
+            )}
+            {editMode && (
+              <Box>
+                <IconButton
+                  size="small"
+                  onClick={() => setAnnouncement({ ...announcement, isEditing: !announcement.isEditing })}
+                  sx={{ color: 'white' }}
+                >
+                  {announcement.isEditing ? <SaveIcon /> : <EditIcon />}
+                </IconButton>
+                <IconButton
+                  size="small"
+                  onClick={() => setAnnouncement({ ...announcement, isVisible: !announcement.isVisible })}
+                  sx={{ color: 'white' }}
+                >
+                  {announcement.isVisible ? <CancelIcon /> : <AddIcon />}
+                </IconButton>
+              </Box>
+            )}
+          </Paper>
+        )}
+
+        {/* Hero Section */}
+        <Box
+          sx={{
+            background: 'linear-gradient(45deg, rgba(25, 118, 210, 0.9) 30%, rgba(67, 160, 71, 0.9) 90%)',
+            color: 'white',
+            borderRadius: 2,
+            padding: { xs: 3, md: 8 },
+            marginBottom: 4,
+            textAlign: 'center',
+            backdropFilter: 'blur(10px)'
+          }}
+        >
+          <Typography 
+            variant="h3" 
+            component="h1" 
+            gutterBottom 
+            fontWeight="bold"
+            sx={{
+              fontSize: {
+                xs: '2rem',
+                sm: '2.5rem',
+                md: '3rem'
+              }
+            }}
+          >
+            Welcome to AquaaFerns
+          </Typography>
+          <Typography variant="h6" sx={{ mb: 3 }}>
+            Your one-stop destination for all things aquatic
+          </Typography>
+          <Button 
+            variant="contained" 
+            color="secondary" 
+            size="large"
+            onClick={() => navigate('/product-list')}
+            sx={{ 
+              backgroundColor: 'white',
+              color: '#1976d2',
+              '&:hover': {
+                backgroundColor: '#f5f5f5'
+              }
+            }}
+          >
+            Explore Our Products
+          </Button>
+        </Box>
+
+        {/* Categories Section */}
+        <Container maxWidth="lg">
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h4" gutterBottom>Categories</Typography>
+            {editMode && (
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={handleAddCategory}
+              >
+                Add Category
+              </Button>
+            )}
+          </Box>
+
+          <Grid container spacing={4}>
+            {categories.map((category) => (
+              <Grid item xs={12} md={6} key={category.id}>
+                {editingCategory?.id === category.id ? (
+                  <Card sx={{ height: '100%' }}>
+                    <CardContent>
+                      <TextField
+                        fullWidth
+                        label="Title"
+                        value={editingCategory.title}
+                        onChange={(e) => setEditingCategory({
+                          ...editingCategory,
+                          title: e.target.value
+                        })}
+                        sx={{ mb: 2 }}
+                      />
+                      <Box sx={{ mb: 2 }}>
+                        <Typography variant="subtitle1" gutterBottom>Image</Typography>
+                        <Grid container spacing={2} alignItems="center">
+                          <Grid item xs={12}>
+                            <TextField
+                              fullWidth
+                              label="Image URL"
+                              value={editingCategory.image}
+                              onChange={(e) => setEditingCategory({
+                                ...editingCategory,
+                                image: e.target.value
+                              })}
+                              sx={{ mb: 1 }}
+                            />
+                          </Grid>
+                          <Grid item xs={12}>
+                            <Typography variant="caption" color="textSecondary" display="block">
+                              Or upload an image:
+                            </Typography>
+                            <input
+                              accept="image/*"
+                              style={{ display: 'none' }}
+                              id="category-image-upload"
+                              type="file"
+                              onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  // Convert to base64 for preview
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setEditingCategory({
+                                      ...editingCategory,
+                                      image: reader.result
+                                    });
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                            <label htmlFor="category-image-upload">
+                              <Button
+                                variant="outlined"
+                                component="span"
+                                startIcon={<AddIcon />}
+                              >
+                                Upload Image
+                              </Button>
+                            </label>
+                            <Button
+                              variant="outlined"
+                              component="span"
+                              startIcon={<PhotoCamera />}
+                              sx={{ ml: 1 }}
+                              onClick={() => {
+                                // Create a video element for camera capture
+                                const videoElement = document.createElement('video');
+                                navigator.mediaDevices.getUserMedia({ video: true })
+                                  .then(stream => {
+                                    videoElement.srcObject = stream;
+                                    videoElement.play();
+                                    
+                                    // Create a canvas element
+                                    const canvas = document.createElement('canvas');
+                                    canvas.width = 640;
+                                    canvas.height = 480;
+                                    
+                                    // After 1 second (to ensure camera is ready), take the picture
+                                    setTimeout(() => {
+                                      const context = canvas.getContext('2d');
+                                      context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                                      
+                                      // Convert to base64
+                                      const imageData = canvas.toDataURL('image/jpeg');
+                                      setEditingCategory({
+                                        ...editingCategory,
+                                        image: imageData
+                                      });
+                                      
+                                      // Stop the camera
+                                      stream.getTracks().forEach(track => track.stop());
+                                    }, 1000);
+                                  })
+                                  .catch(err => {
+                                    console.error('Error accessing camera:', err);
+                                    alert('Could not access camera. Please make sure you have granted camera permissions.');
+                                  });
+                              }}
+                            >
+                              Take Photo
+                            </Button>
+                          </Grid>
+                          {editingCategory.image && (
+                            <Grid item xs={12}>
+                              <Paper sx={{ p: 1, mt: 1 }}>
+                                <Typography variant="caption" display="block" gutterBottom>
+                                  Preview:
+                                </Typography>
+                                <Box 
+                                  sx={{
+                                    width: '100%',
+                                    height: '200px',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    borderRadius: 1,
+                                    bgcolor: 'grey.100'
+                                  }}
+                                >
+                                  <img
+                                    src={editingCategory.image}
+                                    alt="Preview"
+                                    style={{
+                                      width: '100%',
+                                      height: '100%',
+                                      objectFit: 'cover',
+                                      position: 'absolute',
+                                      top: '50%',
+                                      left: '50%',
+                                      transform: 'translate(-50%, -50%)'
+                                    }}
+                                  />
+                                </Box>
+                              </Paper>
+                            </Grid>
+                          )}
+                        </Grid>
+                      </Box>
+                      <TextField
+                        fullWidth
+                        multiline
+                        rows={3}
+                        label="Description"
+                        value={editingCategory.description}
+                        onChange={(e) => setEditingCategory({
+                          ...editingCategory,
+                          description: e.target.value
+                        })}
+                        sx={{ mb: 2 }}
+                      />
+                      <Typography variant="subtitle1">Items:</Typography>
+                      <List>
+                        {editingCategory.items.map((item, index) => (
+                          <ListItem key={index}>
+                            <TextField
+                              fullWidth
+                              value={item}
+                              onChange={(e) => {
+                                const newItems = [...editingCategory.items];
+                                newItems[index] = e.target.value;
+                                setEditingCategory({
+                                  ...editingCategory,
+                                  items: newItems
+                                });
+                              }}
+                            />
+                            <IconButton
+                              onClick={() => {
+                                const newItems = editingCategory.items.filter((_, i) => i !== index);
+                                setEditingCategory({
+                                  ...editingCategory,
+                                  items: newItems
+                                });
+                              }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </ListItem>
+                        ))}
+                      </List>
+                      <Button
+                        startIcon={<AddIcon />}
+                        onClick={() => setEditingCategory({
+                          ...editingCategory,
+                          items: [...editingCategory.items, '']
+                        })}
+                      >
+                        Add Item
+                      </Button>
+                      <Box sx={{ mt: 2, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={handleSaveCategory}
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          onClick={() => setEditingCategory(null)}
+                        >
+                          Cancel
+                        </Button>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card 
+                    sx={{ 
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      transition: '0.3s',
+                      '&:hover': {
+                        transform: 'translateY(-5px)',
+                        boxShadow: 3
+                      },
+                      position: 'relative'
+                    }}
+                  >
+                    {editMode && (
+                      <Box sx={{ position: 'absolute', right: 8, top: 8, zIndex: 1 }}>
+                        <IconButton
+                          onClick={() => handleEditCategory(category)}
+                          sx={{ backgroundColor: 'rgba(255,255,255,0.8)', mr: 1 }}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton
+                          onClick={() => handleDeleteCategory(category.id)}
+                          sx={{ backgroundColor: 'rgba(255,255,255,0.8)' }}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                    )}
+                    <Box
+                      sx={{
+                        position: 'relative',
+                        height: '250px',
+                        width: '100%',
+                        overflow: 'hidden'
+                      }}
+                    >
+                      <CardMedia
+                        component="img"
+                        image={category.image}
+                        alt={category.title}
+                        sx={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          transition: 'transform 0.3s ease-in-out',
+                          '&:hover': {
+                            transform: 'translate(-50%, -50%) scale(1.05)'
+                          }
+                        }}
+                      />
+                    </Box>
+                    <CardContent sx={{ flexGrow: 1 }}>
+                      <Typography gutterBottom variant="h5" component="h2" fontWeight="bold">
+                        {category.title}
+                      </Typography>
+                      <Typography variant="body1" color="text.secondary" paragraph>
+                        {category.description}
+                      </Typography>
+                      <Box sx={{ mt: 2 }}>
+                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                          Featured Items:
+                        </Typography>
+                        {category.items.map((item, i) => (
+                          <Typography key={i} variant="body2" color="text.secondary">
+                            • {item}
+                          </Typography>
+                        ))}
+                      </Box>
+                    </CardContent>
+                  </Card>
+                )}
+              </Grid>
+            ))}
+          </Grid>
+
+          {/* Instagram Feed Section */}
+          <Box sx={{ mt: 6, mb: 4 }}>
+            <Typography variant="h4" gutterBottom fontWeight="bold" textAlign="center">
+              Instagram Feed
+            </Typography>
+            <Box sx={{ maxWidth: '800px', margin: '0 auto' }}>
+              <InstagramFeed accessToken={process.env.REACT_APP_INSTAGRAM_ACCESS_TOKEN} />
+            </Box>
+          </Box>
+
+          {/* About Section */}
+          <Box sx={{ 
+            mt: 6, 
+            mb: 4, 
+            textAlign: 'center',
+            padding: 4,
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: 2
+          }}>
+            <Typography variant="h4" gutterBottom fontWeight="bold">
+              Why Choose AquaaFerns?
+            </Typography>
+            <Grid container spacing={4} sx={{ mt: 2 }}>
+              <Grid item xs={12} md={4}>
+                <Typography variant="h6" gutterBottom fontWeight="bold">
+                  Expert Guidance
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  Our team of aquarium enthusiasts provides personalized advice for your aquatic needs.
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Typography variant="h6" gutterBottom fontWeight="bold">
+                  Quality Products
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  We source only the healthiest fish and plants, and the most reliable equipment.
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Typography variant="h6" gutterBottom fontWeight="bold">
+                  Customer Support
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  Dedicated support for all your aquarium-related questions and concerns.
+                </Typography>
+              </Grid>
+            </Grid>
+          </Box>
+        </Container>
+      </Box>
+    </MainLayout>
+  );
+};
+
+export default Home;
