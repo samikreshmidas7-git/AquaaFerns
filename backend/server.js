@@ -11,7 +11,8 @@ const bcrypt = require('bcryptjs');
 dotenv.config();
 
 // Setup MongoDB connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/aquaaferns';
+const MONGODB_URI = process.env.MONGODB_URI?.trim() || 'mongodb://localhost:27017/aquaaferns';
+console.log('MongoDB URI:', MONGODB_URI); // For debugging
 
 // Define User Schema
 const userSchema = new mongoose.Schema({
@@ -37,15 +38,19 @@ userSchema.pre('save', async function(next) {
 const User = mongoose.model('User', userSchema);
 
 // Connect to MongoDB
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => {
-  console.log('Connected to MongoDB');
-}).catch(err => {
-  console.error('MongoDB connection error:', err);
-  process.exit(1);
-});
+mongoose.connect(MONGODB_URI)
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+    // Log the environment variable for debugging
+    console.log('Environment variables:', {
+      MONGODB_URI: process.env.MONGODB_URI,
+      NODE_ENV: process.env.NODE_ENV
+    });
+    process.exit(1);
+  });
 
 // Create Express app
 const app = express();
