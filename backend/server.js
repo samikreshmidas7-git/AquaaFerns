@@ -77,28 +77,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Configure CORS
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://127.0.0.1:3000',
-  'http://127.0.0.1:3001',
-  'https://aquaaferns.netlify.app',
-  'https://aquaaferns.onrender.com',
-  'https://aquaaferns-frontend.onrender.com'
-];
-
+// Configure CORS
 app.use(cors({
-  origin: function(origin, callback) {
-    // allow requests with no origin (like mobile apps or curl requests)
-    if(!origin) return callback(null, true);
-    if(allowedOrigins.indexOf(origin) === -1){
-      var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
+  origin: 'https://aquaaferns-frontend.onrender.com',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  credentials: true,
+  optionsSuccessStatus: 200,
+  exposedHeaders: ['Set-Cookie'],
+  preflightContinue: true
+}));
+
+// Handle preflight requests
+app.options('*', cors({
+  origin: 'https://aquaaferns-frontend.onrender.com',
   credentials: true,
   optionsSuccessStatus: 200
 }));
@@ -172,9 +164,10 @@ authRouter.post('/login', async (req, res) => {
     // Set the token in an HTTP-only cookie
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      secure: true,
+      sameSite: 'none',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      domain: '.onrender.com'
     });
 
     res.json({

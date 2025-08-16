@@ -30,7 +30,8 @@ const LoginDialog = ({ open, onClose }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'Origin': 'https://aquaaferns-frontend.onrender.com'
         },
         credentials: 'include',  // Important for cookies
         body: JSON.stringify({ email, password }),
