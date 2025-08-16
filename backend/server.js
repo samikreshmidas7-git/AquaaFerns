@@ -63,19 +63,19 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Root route
-app.get('/', (req, res) => {
-  res.json({ message: 'Server is running!' });
-});
-
-// Configure and use CORS - must be before any routes
+// Configure CORS
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'],
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'https://aquaaferns.netlify.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   credentials: true,
   optionsSuccessStatus: 200
 }));
+
+// Root route
+app.get('/', (req, res) => {
+  res.json({ message: 'Server is running!' });
+});
 
 // Auth middleware
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
