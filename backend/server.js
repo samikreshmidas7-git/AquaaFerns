@@ -63,37 +63,29 @@ connectWithRetry();
 // Create Express app
 const app = express();
 
-// Configure CORS - must be before any routes
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-  credentials: true,
-  optionsSuccessStatus: 200
-}));
+// Enable CORS for all routes
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = ['https://aquaaferns-frontend.onrender.com', 'http://localhost:3000'];
+  
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+  
+  next();
+});
 
 // Basic middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Configure CORS
-// Configure CORS
-app.use(cors({
-  origin: 'https://aquaaferns-frontend.onrender.com',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-  credentials: true,
-  optionsSuccessStatus: 200,
-  exposedHeaders: ['Set-Cookie'],
-  preflightContinue: true
-}));
-
-// Handle preflight requests
-app.options('*', cors({
-  origin: 'https://aquaaferns-frontend.onrender.com',
-  credentials: true,
-  optionsSuccessStatus: 200
-}));
 
 // Root route
 app.get('/', (req, res) => {
@@ -166,8 +158,7 @@ authRouter.post('/login', async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      domain: '.onrender.com'
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
     });
 
     res.json({
